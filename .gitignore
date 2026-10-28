@@ -11,3 +11,6 @@ wheels/
 
 # uv files
 uv.lock
+
+# setuptools-scm
+src/aave/version.py

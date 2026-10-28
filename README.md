@@ -57,6 +57,8 @@ This project is in development and should be considered a beta.
 Things might not be in their final state and breaking changes may occur.
 Comments, questions, criticisms and pull requests are welcomed.
 
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for local setup with `uv` and `prek`.
+
 ### Support
 
 Support for different parts of the Aave protocols:

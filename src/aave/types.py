@@ -3,13 +3,13 @@ from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, TypeAlias
 
-from ape.utils import ManagerAccessMixin
 from ape.types import AddressType
+from ape.utils import ManagerAccessMixin
 
 if TYPE_CHECKING:
     # NOTE: Not available in `typing` in 3.10
 
-    from ape.api import ReceiptAPI, AccountAPI, BaseAddress
+    from ape.api import AccountAPI, BaseAddress, ReceiptAPI
     from ape.contracts import ContractInstance
     from ape_tokens import Token
 

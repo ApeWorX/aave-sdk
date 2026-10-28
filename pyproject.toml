@@ -1,5 +1,6 @@
 [build-system]
-requires = ["setuptools>=75", "wheel", "setuptools_scm>=5"]
+requires = ["setuptools>=75.6.0", "wheel", "setuptools_scm[toml]>=5.0"]
+build-backend = "setuptools.build_meta"
 
 [project.urls]
 Repository = "https://github.com/ApeWorX/aave-sdk.git"
@@ -13,7 +14,7 @@ description = "Ape SDK for interacting with Aave protocols"
 keywords = [ "ethereum", "ape", "aave", "defi" ]
 readme = "README.md"
 authors = [
-    { name = "ApeWorX LTD", email = "admin@apeworx.io" }
+    { name = "ApeWorX Ltd.", email = "admin@apeworx.io" }
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -28,7 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.10,<4"
 dependencies = [
     "ape-tokens>=0.8,<1",
     "eth-ape>=0.8.43,<1.0",
@@ -37,11 +38,10 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = [ "src" ]
-[tool.setuptools.package-data]
-aave = [ "manifests/*.json" ]
+# package-data: add manifests/*.json when those assets land in src/aave/manifests/
 
 [tool.setuptools_scm]
-# NOTE: Presence is required to initialize
+write_to = "src/aave/version.py"
 
 [project.scripts]
 aave = "aave.__main__:cli"
@@ -63,7 +63,7 @@ lint = [
 ]
 dev = [
     "commitlint",  # Manage commits and publishing releases
-    "pre-commit",  # Ensure that linters are run prior to committing
+    "prek",  # Ensure that linters are run prior to committing
     "IPython",  # Console for interacting
     "ipdb",  # Debugger (Must use `export PYTHONBREAKPOINT=ipdb.set_trace`)
     {include-group = "test"},
@@ -75,6 +75,10 @@ dev = [
 [tool.ruff]
 target-version = "py310"
 line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = ["E501", "B904", "B006", "SIM108", "SIM105", "F841"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -99,3 +103,7 @@ addopts = """
 
 [tool.mdformat]
 number = true
+
+
+[tool.mypy]
+exclude = "build/"
