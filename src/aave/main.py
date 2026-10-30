@@ -3,9 +3,8 @@ from typing import TYPE_CHECKING
 
 from ape.utils import ManagerAccessMixin
 
-
 if TYPE_CHECKING:
-    from .types import TokenType, BaseMarket
+    from .types import BaseMarket, TokenType
 
 
 class Aave(ManagerAccessMixin):
@@ -23,7 +22,7 @@ class Aave(ManagerAccessMixin):
         use_v2: bool = False,
         use_v3: bool = True,
     ):
-        self.all_markets: list["BaseMarket"] = []
+        self.all_markets: list[BaseMarket] = []
         if not (use_v2 or use_v3):
             raise ValueError("No protocol versions selected")
 

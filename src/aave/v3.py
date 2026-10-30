@@ -105,7 +105,7 @@ class Market(aave_types.BaseMarket):
 
     @cached_property
     def BASE_CURRENCY_UNIT(self) -> int:
-        return 10 ** 8
+        return 10**8
         # NOTE: No idea if this changes, but is immutable 10 ** 8
         #       see: `return self.oracle.BASE_CURRENCY_UNIT()`
 
@@ -113,11 +113,11 @@ class Market(aave_types.BaseMarket):
     def assets(self) -> list[Token]:
         """Supported Assets by the Market (for deposit or withdrawal)"""
         return [Token.at(addr) for addr in self.pool.getReservesList()]
-    
+
     def get_reserve_data(self, asset: aave_types.TokenType):
         """Raw, unprocessed reserve data for pool"""
         return self.pool.getReserveData(asset)
-    
+
     def a_token_for(self, asset: aave_types.TokenType) -> "Token | None":
         if (address := self.get_reserve_data(asset).aTokenAddress) is ZERO_ADDRESS:
             return None
@@ -129,10 +129,11 @@ class Market(aave_types.BaseMarket):
         asset: aave_types.TokenType,
         rate_type: InterestRateMode | int = InterestRateMode.VARIABLE,
     ) -> "Token | None":
-
         match InterestRateMode(rate_type):
             case InterestRateMode.VARIABLE:
-                if (address := self.get_reserve_data(asset).variableDebtTokenAddress) is ZERO_ADDRESS:
+                if (
+                    address := self.get_reserve_data(asset).variableDebtTokenAddress
+                ) is ZERO_ADDRESS:
                     return None
 
             case InterestRateMode.STABLE:
@@ -143,6 +144,7 @@ class Market(aave_types.BaseMarket):
 
     def supply_yield(self, asset: aave_types.TokenType) -> Decimal:
         reserve_data = self.get_reserve_data(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_data`
 
     def borrow_rate(
         self,
@@ -163,45 +165,54 @@ class Market(aave_types.BaseMarket):
 
     def total_supplied(self, asset: aave_types.TokenType) -> Decimal:
         reserve_data = self.get_reserve_data(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_data`
 
     def total_borrowed(self, asset: aave_types.TokenType) -> Decimal:
         reserve_data = self.get_reserve_data(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_data`
 
     def available_liquidity(self, asset: aave_types.TokenType) -> Decimal:
         reserve_data = self.get_reserve_data(asset)
-        
+        raise NotImplementedError  # TODO: derive from `reserve_data`
+
     def get_reserve_config(self, asset: aave_types.TokenType):
         return self.data_provider.getReserveConfigurationData(asset)
 
     def utilization_rate(self, asset: aave_types.TokenType) -> Decimal:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def max_ltv(self, asset: aave_types.TokenType) -> Decimal:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def liquidation_threshold(self, asset: aave_types.TokenType) -> Decimal:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def liquidation_penalty(self, asset: aave_types.TokenType) -> Decimal:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def reserve_factor(self, asset: aave_types.TokenType) -> Decimal:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def is_allowed_collateral(self, asset: aave_types.TokenType) -> bool:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def is_borrowable(self, asset: aave_types.TokenType) -> bool:
         """Is given asset borrowable"""
 
         reserve_data = self.get_reserve_data(asset)
         return (
-            reserve_data.currentStableBorrowRate > 0
-            or reserve_data.currentVariableBorrowRate > 0
+            reserve_data.currentStableBorrowRate > 0 or reserve_data.currentVariableBorrowRate > 0
         )
 
     def get_asset_price(self, asset: aave_types.TokenType) -> Decimal:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def get_position(self, account: aave_types.UserType) -> "Position":
         return Position(market=self, account=self.conversion_manager.convert(account, AddressType))
@@ -243,7 +254,7 @@ class Position(aave_types.BasePosition):
         """Current health factor of this position (liquidated below 1.0)"""
         # return self.liquidation_ltv / self.ltv
         return Decimal(self.user_data.healthFactor) / self.market.BASE_CURRENCY_UNIT
-    
+
     @property
     def liquidation_ltv(self) -> Decimal:
         """LTV (loan-to-value) at which liquidation occurs for this position (ratio)"""
@@ -258,7 +269,7 @@ class Position(aave_types.BasePosition):
         """Current amount of asset supplied for this position"""
         if not (a_token := self.market.a_token_for(asset)):
             return Decimal(0)
-       
+
         # NOTE: aToken balance accrues as native underlying balance
         return Decimal(a_token.balanceOf(self.account)) / Decimal(10 ** a_token.decimals())
 
@@ -335,7 +346,7 @@ class Position(aave_types.BasePosition):
     ) -> Decimal:
         if not (debt_token := self.market.debt_token_for(asset, rate_type=rate_type)):
             return Decimal(0)
-       
+
         # NOTE: Debt token accrues as native underlying balance
         return Decimal(debt_token.balanceOf(self.account)) / Decimal(10 ** debt_token.decimals())
 
@@ -401,7 +412,7 @@ class Position(aave_types.BasePosition):
 
         elif not isinstance(amount, int):
             amount = self.conversion_manager.convert(amount, int)
-        
+
         # Check and handle approvals
         sender = txn_args.get("sender") or self.account_manager.default_sender
         if asset.allowance(sender, self.market.pool) < amount:
@@ -414,8 +425,10 @@ class Position(aave_types.BasePosition):
             self.account,  # onBehalfOf is the Position's account
             **txn_args,
         )
-    
-    def liquidation_price(self, collateral_asset: aave_types.TokenType, debt_asset: aave_types.TokenType) -> Decimal:
+
+    def liquidation_price(
+        self, collateral_asset: aave_types.TokenType, debt_asset: aave_types.TokenType
+    ) -> Decimal:
         raise NotImplementedError
 
     def liquidate(
@@ -426,7 +439,10 @@ class Position(aave_types.BasePosition):
         receive_underlying: bool = True,
         **txn_args,
     ) -> "ReceiptAPI":
-        # NOTE: LTV is debt / collateral, and 
+        # NOTE: LTV is debt / collateral, and
+        if not isinstance(debt_asset, TokenInstance):
+            debt_asset = Token.at(self.conversion_manager.convert(debt_asset, AddressType))
+
         sender = txn_args.get("sender") or self.account_manager.default_sender
         if debt_amount is None:
             debt_amount = min(
@@ -439,13 +455,13 @@ class Position(aave_types.BasePosition):
 
         elif not isinstance(debt_amount, int):
             debt_amount = self.conversion_manager.convert(debt_amount, int)
-        
+
         # Check and handle approvals
         sender = txn_args.get("sender") or self.account_manager.default_sender
         if debt_asset.allowance(sender, self.market.pool) < debt_amount:
             debt_asset.approve(self.market.pool, debt_amount, sender=sender)
 
-        self.market.pool.liquidationCall(
+        return self.market.pool.liquidationCall(
             collateral_asset,
             debt_asset,
             self.account,

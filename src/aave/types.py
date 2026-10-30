@@ -3,13 +3,13 @@ from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, TypeAlias
 
-from ape.utils import ManagerAccessMixin
 from ape.types import AddressType
+from ape.utils import ManagerAccessMixin
 
 if TYPE_CHECKING:
     # NOTE: Not available in `typing` in 3.10
 
-    from ape.api import ReceiptAPI, AccountAPI, BaseAddress
+    from ape.api import AccountAPI, BaseAddress, ReceiptAPI
     from ape.contracts import ContractInstance
     from ape_tokens import Token
 
@@ -187,5 +187,12 @@ class BasePosition(ABC, ManagerAccessMixin):
         """Calculate liquidation price for a collateral/debt pair"""
 
     @abstractmethod
-    def liquidate(self, **txn_args) -> "ReceiptAPI":
+    def liquidate(
+        self,
+        collateral_asset: TokenType,
+        debt_asset: TokenType,
+        debt_amount: TokenAmount | None = None,
+        receive_underlying: bool = True,
+        **txn_args,
+    ) -> "ReceiptAPI":
         """Perform a liquidation of the account"""

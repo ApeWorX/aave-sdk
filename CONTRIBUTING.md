@@ -1,0 +1,39 @@
+# Development
+
+To get started with working on the codebase, use the following steps prepare your local environment:
+
+```bash
+# clone the github repo and navigate into the folder
+git clone https://github.com/ApeWorX/aave-sdk.git
+cd aave-sdk
+
+# create and load a virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# install the developer dependencies
+uv sync --group dev
+```
+
+## Pre-Commit Hooks
+
+We use [`prek`](https://github.com/j178/prek) to run repository hooks and keep contributor workflows
+consistent. Use of `prek` is not a requirement, but is highly recommended.
+
+Install hooks locally from the root folder:
+
+```bash
+uv run prek install
+```
+
+Committing will now automatically run the local hooks and ensure that your commit passes all lint checks.
+
+## Pull Requests
+
+Pull requests are welcomed! Please adhere to the following:
+
+- Ensure your pull request passes our linting checks
+- Include test cases for any new functionality
+- Include any relevant documentation updates
+
+Join the ApeWorX [Discord](https://discord.gg/apeworx) if you have any questions.
