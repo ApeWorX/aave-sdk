@@ -187,5 +187,12 @@ class BasePosition(ABC, ManagerAccessMixin):
         """Calculate liquidation price for a collateral/debt pair"""
 
     @abstractmethod
-    def liquidate(self, **txn_args) -> "ReceiptAPI":
+    def liquidate(
+        self,
+        collateral_asset: TokenType,
+        debt_asset: TokenType,
+        debt_amount: TokenAmount | None = None,
+        receive_underlying: bool = True,
+        **txn_args,
+    ) -> "ReceiptAPI":
         """Perform a liquidation of the account"""

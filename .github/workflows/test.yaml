@@ -43,6 +43,7 @@ jobs:
 
   functional:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
 
     strategy:
       matrix:

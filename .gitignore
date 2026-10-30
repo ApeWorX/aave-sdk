@@ -14,3 +14,6 @@ uv.lock
 
 # setuptools-scm
 src/aave/version.py
+.coverage
+coverage.xml
+htmlcov/

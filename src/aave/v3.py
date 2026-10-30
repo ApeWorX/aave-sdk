@@ -144,6 +144,7 @@ class Market(aave_types.BaseMarket):
 
     def supply_yield(self, asset: aave_types.TokenType) -> Decimal:
         reserve_data = self.get_reserve_data(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_data`
 
     def borrow_rate(
         self,
@@ -164,33 +165,42 @@ class Market(aave_types.BaseMarket):
 
     def total_supplied(self, asset: aave_types.TokenType) -> Decimal:
         reserve_data = self.get_reserve_data(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_data`
 
     def total_borrowed(self, asset: aave_types.TokenType) -> Decimal:
         reserve_data = self.get_reserve_data(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_data`
 
     def available_liquidity(self, asset: aave_types.TokenType) -> Decimal:
         reserve_data = self.get_reserve_data(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_data`
 
     def get_reserve_config(self, asset: aave_types.TokenType):
         return self.data_provider.getReserveConfigurationData(asset)
 
     def utilization_rate(self, asset: aave_types.TokenType) -> Decimal:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def max_ltv(self, asset: aave_types.TokenType) -> Decimal:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def liquidation_threshold(self, asset: aave_types.TokenType) -> Decimal:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def liquidation_penalty(self, asset: aave_types.TokenType) -> Decimal:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def reserve_factor(self, asset: aave_types.TokenType) -> Decimal:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def is_allowed_collateral(self, asset: aave_types.TokenType) -> bool:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def is_borrowable(self, asset: aave_types.TokenType) -> bool:
         """Is given asset borrowable"""
@@ -202,6 +212,7 @@ class Market(aave_types.BaseMarket):
 
     def get_asset_price(self, asset: aave_types.TokenType) -> Decimal:
         reserve_config = self.get_reserve_config(asset)
+        raise NotImplementedError  # TODO: derive from `reserve_config`
 
     def get_position(self, account: aave_types.UserType) -> "Position":
         return Position(market=self, account=self.conversion_manager.convert(account, AddressType))
@@ -429,6 +440,9 @@ class Position(aave_types.BasePosition):
         **txn_args,
     ) -> "ReceiptAPI":
         # NOTE: LTV is debt / collateral, and
+        if not isinstance(debt_asset, TokenInstance):
+            debt_asset = Token.at(self.conversion_manager.convert(debt_asset, AddressType))
+
         sender = txn_args.get("sender") or self.account_manager.default_sender
         if debt_amount is None:
             debt_amount = min(
@@ -447,7 +461,7 @@ class Position(aave_types.BasePosition):
         if debt_asset.allowance(sender, self.market.pool) < debt_amount:
             debt_asset.approve(self.market.pool, debt_amount, sender=sender)
 
-        self.market.pool.liquidationCall(
+        return self.market.pool.liquidationCall(
             collateral_asset,
             debt_asset,
             self.account,
